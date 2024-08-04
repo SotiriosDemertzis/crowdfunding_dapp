@@ -1,24 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import web3 from './web3';
+import contract from './contract';
+import Header from './Header';
+import NewCampaign from './NewCampaign';
+import LiveCampaigns from './LiveCampaigns';
+import FulfilledCampaigns from './FulfilledCampaigns';
+import ControlPanel from './ControlPanel';
+import MetaMaskLogin from './MetaMaskLogin'; 
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <MetaMaskLogin >
+        <Header />
+        <hr></hr>
+        <NewCampaign />
+        <hr></hr>
+        <LiveCampaigns />
+        <hr></hr>
+        <FulfilledCampaigns />
+        <hr></hr>
+        <ControlPanel />
+        <hr></hr>
+    </MetaMaskLogin>
   );
 }
 
