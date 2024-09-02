@@ -4,37 +4,43 @@ import web3 from './web3';
 import campaign from './campaign';
 
 class App extends Component {
+  // Ορισμός των αρχικών μεταβλητών κατάστασης για το component
   state = {
-    owner: '',
-    currentAccount: '',
-    contractBalance: '',
-    reservedFunds: '',
-    liveCampaigns: [],
-    fulfilledCampaigns: [],
-    error: null,
-    success: null,
-    isMetaMaskConnected: false,
-    isLoading: false,
-    isContractDestroyed: false,
-    newCampaignTitle: '',
-    newCampaignPledgeCost: '',
-    newCampaignNumberOfPledges: '',
-    pendingTransactions: {},
-    newOwnerAddress: '',
-    bannedEntrepreneurAddress: "",
-    isCurrentAddressBanned: false,
+    owner: '', // Ο ιδιοκτήτης του smart contract
+    currentAccount: '', // Ο τρέχων συνδεδεμένος λογαριασμός στο MetaMask
+    contractBalance: '', // Το υπόλοιπο του smart contract σε ETH
+    reservedFunds: '', // Τα δεσμευμένα κεφάλαια για ολοκληρωμένες καμπάνιες
+    liveCampaigns: [], // Πίνακας για την αποθήκευση των ενεργών καμπανιών
+    fulfilledCampaigns: [], // Πίνακας για την αποθήκευση των ολοκληρωμένων καμπανιών
+    error: null, // Μεταβλητή για την αποθήκευση μηνυμάτων σφάλματος, αν υπάρχουν
+    success: null, // Μεταβλητή για την αποθήκευση μηνυμάτων επιτυχίας, αν υπάρχουν
+    isMetaMaskConnected: false, // Boolean που ελέγχει αν το MetaMask είναι συνδεδεμένο
+    isLoading: false, // Boolean που διαχειρίζεται την κατάσταση φόρτωσης
+    isContractDestroyed: false, // Boolean που ελέγχει αν το συμβόλαιο έχει καταστραφεί
+    newCampaignTitle: '', // Τίτλος για μια νέα καμπάνια
+    newCampaignPledgeCost: '', // Κόστος υποστήριξης για μια νέα καμπάνια
+    newCampaignNumberOfPledges: '', // Αριθμός υποστηρίξεων για μια νέα καμπάνια
+    pendingTransactions: {}, // Εκκρεμείς συναλλαγές
+    newOwnerAddress: '', // Διεύθυνση για τον νέο ιδιοκτήτη του συμβολαίου
+    bannedEntrepreneurAddress: "", // Διεύθυνση του απαγορευμένου επιχειρηματία
+    isCurrentAddressBanned: false, // Boolean που ελέγχει αν η τρέχουσα διεύθυνση είναι απαγορευμένη
   };
 
+  // Έλεγχος αν έχουν ρυθμιστεί οι listeners για τα γεγονότα
   eventListenersSet = false;
 
+  // Αυτή η μέθοδος εκτελείται όταν το component φορτωθεί
   async componentDidMount() {
     try {
+      // Έλεγχος διαθεσιμότητας του MetaMask
       await this.checkMetaMaskAvailability();
+      // Φόρτωση των δεδομένων του blockchain
       await this.loadBlockchainData();
       
-      // Ensure the campaign object is properly initialized
+      // Εξασφάλιση ότι το αντικείμενο campaign έχει αρχικοποιηθεί σωστά
       if (campaign && campaign.options && campaign.options.address) {
         if (!this.eventListenersSet) {
+          // Ρύθμιση των listeners για τα γεγονότα
           this.setupEventListeners();
           this.eventListenersSet = true;
         }
@@ -46,7 +52,9 @@ class App extends Component {
     }
   }
 
+  // Αυτή η μέθοδος εκτελείται όταν το component καταστραφεί
   componentWillUnmount() {
+    // Λίστα με τα γεγονότα από τα οποία θα πρέπει να απεγγραφεί το component
     const events = [
       'CampaignCreated',
       'PledgeMade',
@@ -58,6 +66,7 @@ class App extends Component {
       'FundsWithdrawn'
     ];
   
+    // Απεγγραφή από τα γεγονότα
     events.forEach(eventName => {
       const listenerName = `${eventName}Listener`;
       if (this[listenerName]) {
@@ -68,40 +77,51 @@ class App extends Component {
       }
     });
   
+    // Αφαίρεση των listeners για αλλαγές στον λογαριασμό ή στο δίκτυο του MetaMask
     if (window.ethereum) {
       window.ethereum.removeListener('accountsChanged', this.handleAccountChange);
       window.ethereum.removeListener('chainChanged', this.handleChainChange);
     }
   }
 
+  // Έλεγχος διαθεσιμότητας του MetaMask
   checkMetaMaskAvailability = () => {
     if (window.ethereum) {
+      // Προσθήκη listeners για αλλαγές στον λογαριασμό ή στο δίκτυο
       window.ethereum.on('accountsChanged', this.handleAccountChange);
       window.ethereum.on('chainChanged', this.handleChainChange);
     } else {
+      // Ενημέρωση κατάστασης αν το MetaMask δεν είναι εγκατεστημένο
       this.setState({ error: "MetaMask is not installed. Please install it to use this app." });
     }
     this.setState({ isLoading: false });
   }
 
+  // Διαχείριση αλλαγών στον λογαριασμό του MetaMask
   handleAccountChange = async (accounts) => {
     if (accounts.length > 0) {
+      // Ενημέρωση της κατάστασης με τον νέο λογαριασμό
       this.setState({ currentAccount: accounts[0].toLowerCase(), isMetaMaskConnected: true ,error:null ,success:null});
       await this.loadBlockchainData();
     } else {
+      // Ενημέρωση της κατάστασης αν δεν υπάρχουν συνδεδεμένοι λογαριασμοί
       this.setState({ isMetaMaskConnected: false, error: "Please connect to MetaMask." });
     }
   }
 
+  // Διαχείριση αλλαγών στο δίκτυο του MetaMask
   handleChainChange = () => {
     window.location.reload();
   }
 
+  // Έλεγχος σύνδεσης με το MetaMask
   checkMetaMaskConnection = async () => {
     this.setState({ isLoading: true, error: null, success: null });
     try {
+      // Αίτημα για να συνδεθεί ο χρήστης στο MetaMask
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       if (accounts.length > 0) {
+        // Ενημέρωση της κατάστασης με τον συνδεδεμένο λογαριασμό
         this.setState({ 
           isMetaMaskConnected: true, 
           currentAccount: accounts[0].toLowerCase() 
@@ -116,6 +136,7 @@ class App extends Component {
     this.setState({ isLoading: false });
   }
 
+  // Φόρτωση δεδομένων από το blockchain
   loadBlockchainData = async () => {
     this.setState({ isLoading: true, error: null });
     try {
@@ -125,6 +146,7 @@ class App extends Component {
         const isContractDestroyed = await campaign.methods.isContractDestroyed().call();
         
         if (isContractDestroyed) {
+          // Ενημέρωση κατάστασης αν το συμβόλαιο έχει καταστραφεί
           this.setState({ 
             isContractDestroyed: true,
             error: "The contract has been destroyed. No further actions can be taken."
@@ -132,6 +154,7 @@ class App extends Component {
           return;
         }
   
+        // Ανάκτηση δεδομένων από το smart contract
         const owner = await campaign.methods.owner().call();
         const contractBalance = await web3.eth.getBalance(campaign.options.address);
         const reservedFunds = await campaign.methods.reservedFunds().call();
@@ -139,20 +162,21 @@ class App extends Component {
         const fulfilledCampaigns = await campaign.methods.getFulfilledCampaigns().call();
         const isCurrentAddressBanned = await campaign.methods.bannedEntrepreneurs(currentAccount).call();
   
-        // Fetch pledge counts for live campaigns
+        // Ανάκτηση του αριθμού των υποστηρίξεων για τις ενεργές καμπάνιες
         const livePledgeCounts = await Promise.all(
           liveCampaigns[1].map(campaignId => 
             campaign.methods.getCurrentUserPledgeCountOnCampaign(campaignId).call({from: currentAccount})
           )
         );
   
-        // Fetch pledge counts for fulfilled campaigns
+        // Ανάκτηση του αριθμού των υποστηρίξεων για τις ολοκληρωμένες καμπάνιες
         const fulfilledPledgeCounts = await Promise.all(
           fulfilledCampaigns[1].map(campaignId => 
             campaign.methods.getCurrentUserPledgeCountOnCampaign(campaignId).call({from: currentAccount})
           )
         );
   
+        // Ενημέρωση της κατάστασης με τα δεδομένα από το blockchain
         this.setState({
           currentAccount,
           owner: owner.toLowerCase(),
@@ -176,8 +200,9 @@ class App extends Component {
     }
   }
 
+  // Ρύθμιση των listeners για τα γεγονότα
   setupEventListeners() {
-    // MetaMask account change listener
+    // Listener για αλλαγές στον λογαριασμό του MetaMask
     window.ethereum.on('accountsChanged', (accounts) => {
       const currentAccount = accounts[0];
       this.setState({ currentAccount }, () => {
@@ -185,56 +210,57 @@ class App extends Component {
       });
     });
   
-    // CampaignCreated event
+    // Listener για το γεγονός δημιουργίας καμπάνιας
     campaign.events.CampaignCreated().on('data', async (data) => {
       console.log('New campaign created:', data.returnValues);
       await this.loadBlockchainData();
     });
   
-    // PledgeMade event
+    // Listener για το γεγονός υποστήριξης καμπάνιας
     campaign.events.PledgeMade().on('data', async (data) => {
       console.log('New pledge made:', data.returnValues);
       await this.loadBlockchainData();
     });
   
-    // CampaignCancelled event
+    // Listener για το γεγονός ακύρωσης καμπάνιας
     campaign.events.CampaignCancelled().on('data', async (data) => {
       console.log('Campaign cancelled:', data.returnValues);
       await this.loadBlockchainData();
     });
   
-    // CampaignFulfilled event
+    // Listener για το γεγονός ολοκλήρωσης καμπάνιας
     campaign.events.CampaignFulfilled().on('data', async (data) => {
       console.log('Campaign fulfilled:', data.returnValues);
       await this.loadBlockchainData();
     });
   
-    // OwnerChanged event
+    // Listener για το γεγονός αλλαγής ιδιοκτήτη
     campaign.events.OwnerChanged().on('data', async (data) => {
       console.log('Owner changed:', data.returnValues);
       await this.loadBlockchainData();
     });
   
-    // EntrepreneurBanned event
+    // Listener για το γεγονός απαγόρευσης επιχειρηματία
     campaign.events.EntrepreneurBanned().on('data', async (data) => {
       console.log('Entrepreneur banned:', data.returnValues);
       await this.loadBlockchainData();
     });
   
-    // ContractDestroyed event
+    // Listener για το γεγονός καταστροφής του συμβολαίου
     campaign.events.ContractDestroyed().on('data', async (data) => {
       console.log('Contract destroyed:', data.returnValues);
       this.setState({ isContractDestroyed: true });
       await this.loadBlockchainData();
     });
   
-    // FundsWithdrawn event
+    // Listener για το γεγονός ανάληψης κεφαλαίων
     campaign.events.FundsWithdrawn().on('data', async (data) => {
       console.log('Funds withdrawn:', data.returnValues);
       await this.loadBlockchainData();
     });
   }
 
+  // Μέθοδος για την ενημέρωση των δεδομένων των καμπανιών
   updateCampaigns = async () => {
     this.setState({ isLoading: true });
     try {
@@ -257,6 +283,7 @@ class App extends Component {
     }
   }
 
+  // Μέθοδος για την υποβολή νέας καμπάνιας
   handleNewCampaignSubmit = async (e) => {
     e.preventDefault();
     this.setState({ error: '', success: '', isLoading: true });
@@ -264,6 +291,7 @@ class App extends Component {
     try {
       const { newCampaignTitle, newCampaignPledgeCost, newCampaignNumberOfPledges } = this.state;
       
+      // Έλεγχος αν ο τίτλος της καμπάνιας υπάρχει ήδη
       const titleExists = await campaign.methods.titleExists(newCampaignTitle).call();
       if (titleExists) {
         throw new Error('This title is already taken. Please choose a different one.');
@@ -271,6 +299,7 @@ class App extends Component {
 
       const pledgeCostWei = web3.utils.toWei(newCampaignPledgeCost, 'ether');
 
+      // Δημιουργία νέας καμπάνιας
       await campaign.methods.createCampaign(
         newCampaignTitle, 
         pledgeCostWei,
@@ -287,7 +316,7 @@ class App extends Component {
         newCampaignNumberOfPledges: '' 
       });
 
-    // Refresh blockchain data instead of just updating campaigns
+    // Φόρτωση των δεδομένων του blockchain ξανά
       await this.loadBlockchainData();
     } catch (err) {
       this.setState({ error: err.message });
@@ -296,6 +325,7 @@ class App extends Component {
     }
   };
 
+  // Μέθοδος για την υποστήριξη καμπάνιας
   handlePledge = async (campaignId, pledgeCost) => {
     this.setState(prevState => ({
       error: null,
@@ -311,7 +341,7 @@ class App extends Component {
       
       this.setState({ success: "Pledge successful!" });
       
-      // Refresh all campaign data
+      // Ανανέωση των δεδομένων όλων των καμπανιών
       await this.loadBlockchainData();
   
     } catch (err) {
@@ -328,6 +358,7 @@ class App extends Component {
     }
   };
 
+  // Μέθοδος για την ακύρωση καμπάνιας
   handleCancelCampaign = async (campaignId) => {
     this.setState(prevState => ({
       error: null,
@@ -349,6 +380,7 @@ class App extends Component {
     }
   };
 
+  // Μέθοδος για την ανάληψη κεφαλαίων
   handleWithdraw = async () => {
     this.setState({ isLoading: true, error: '', success: '' });
     try {
@@ -362,6 +394,7 @@ class App extends Component {
     }
   };
 
+  // Μέθοδος για την αλλαγή ιδιοκτήτη του συμβολαίου
   handleChangeOwner = async () => {
     this.setState({ isLoading: true, error: '', success: '' });
     try {
@@ -377,6 +410,7 @@ class App extends Component {
     }
   };
 
+  // Μέθοδος για την απαγόρευση επιχειρηματία
   handleBanEntrepreneur = async () => {
     this.setState({ isLoading: true, error: '', success: '' });
     try {
@@ -390,6 +424,7 @@ class App extends Component {
     }
   };
 
+  // Μέθοδος για την καταστροφή του συμβολαίου
   handleDestroyContract = async () => {
     this.setState({ isLoading: true, error: '', success: '' });
     try {
@@ -405,6 +440,7 @@ class App extends Component {
     }
   };
 
+  // Μέθοδος για την απόδοση του πίνακα καμπανιών
   renderCampaignTable = (campaigns, pledgeCounts, isLive) => {
     try {
       return (
@@ -463,6 +499,7 @@ class App extends Component {
     }
   }
 
+  // Απόδοση του component
   render() {
     const { isLoading, isMetaMaskConnected, error, isContractDestroyed } = this.state;
 
@@ -496,7 +533,7 @@ class App extends Component {
         {error && <div className="alert alert-danger">{error}</div>}
         {this.state.success && <div className="alert alert-success">{this.state.success}</div>}
         
-        {/* Header Section */}
+        {/* Ενότητα επικεφαλίδας */}
         <div id="address-info" className="mb-4">
           <h1>Crowdfunding DApp</h1>
           <div className="form-group">
@@ -517,7 +554,7 @@ class App extends Component {
           </div>
         </div>
 
-        {/* New Campaign Section */}
+        {/* Ενότητα νέας καμπάνιας */}
         <div id="new-campaign" className="mb-4">
           <h2>New Campaign</h2>
           <form onSubmit={this.handleNewCampaignSubmit}>
@@ -566,7 +603,7 @@ class App extends Component {
           </form>
         </div>
 
-        {/* Live Campaigns Section */}
+        {/* Ενότητα ενεργών καμπανιών */}
         <div className="mb-4">
           <h2>Live Campaigns</h2>
           {this.state.liveCampaigns && this.state.liveCampaigns[0] && this.state.liveCampaigns[0].length > 0 ? (
@@ -576,7 +613,7 @@ class App extends Component {
           )}
         </div>
 
-        {/* Fulfilled Campaigns Section */}
+        {/* Ενότητα ολοκληρωμένων καμπανιών */}
         <div className="mb-4">
           <h2>Fulfilled Campaigns</h2>
           {this.state.fulfilledCampaigns && this.state.fulfilledCampaigns[0] && this.state.fulfilledCampaigns[0].length > 0 ? (
@@ -586,7 +623,7 @@ class App extends Component {
           )}
         </div>
 
-        {/* Control Panel Section */}
+        {/* Ενότητα πίνακα ελέγχου */}
         {this.state.currentAccount.toLowerCase() === this.state.owner.toLowerCase() && (
           <div className="mb-4">
             <h2>Control Panel</h2>
