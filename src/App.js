@@ -464,7 +464,7 @@ class App extends Component {
                   <td>{campaign.entrepreneur ? campaign.entrepreneur.toLowerCase() : 'N/A'}</td>
                   <td>{campaign.title || 'N/A'}</td>
                   <td>{campaign.pledgeCost ? web3.utils.fromWei(campaign.pledgeCost.toString(), 'ether') + ' ETH' : 'N/A'}</td>
-                  <td>{campaign.backersCount ? campaign.backersCount.toString() : 'N/A'}</td>
+                  <td>{campaign.backersCount ? campaign.backersCount.toString() : '0'}</td>
                   <td>{isLive ? (campaign.pledgesLeft ? campaign.pledgesLeft.toString() : '0') : '0'}</td>
                   <td>{pledgeCounts[index] !== undefined ? pledgeCounts[index].toString() : '0'}</td>
                   {isLive ? (
