@@ -1,70 +1,55 @@
-# Getting Started with Create React App
+Live site at https://sotiriosdemertzis.github.io/crowdfunding_dapp/
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Crowdfunding DApp
 
-## Available Scripts
+## Project Overview
 
-In the project directory, you can run:
+This project is a decentralized application (DApp) for crowdfunding campaigns built on the Ethereum blockchain. It allows entrepreneurs to create and manage fundraising campaigns, and backers to pledge support to these campaigns.
 
-### `npm start`
+## Key Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. **Campaign Creation**: Entrepreneurs can create new crowdfunding campaigns by specifying a title, pledge cost, and number of pledges.
+2. **Pledge System**: Users can pledge support to live campaigns by sending Ether.
+3. **Campaign Management**: Entrepreneurs and the contract owner can cancel campaigns.
+4. **Automatic Fulfillment**: Campaigns are automatically marked as fulfilled when all pledges are received.
+5. **User Roles**: Distinct roles for entrepreneurs, backers, and the contract owner.
+6. **Admin Controls**: The contract owner has special privileges like banning entrepreneurs and destroying the contract.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Technologies Used
 
-### `npm test`
+- **Solidity**: For writing the smart contract
+- **React**: For building the frontend user interface
+- **Web3.js**: For interacting with the Ethereum blockchain
+- **MetaMask**: For handling user authentication and transactions
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Smart Contract Features
 
-### `npm run build`
+- **Campaign Structure**: Stores details like entrepreneur address, title, pledge cost, backers count, etc.
+- **Event Emission**: Emits events for important actions (e.g., campaign creation, pledges, fulfillment).
+- **Access Control**: Implements role-based access control for different functions.
+- **Fund Management**: Handles the collection and distribution of funds.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Frontend Features
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **MetaMask Integration**: Connects to users' Ethereum wallets via MetaMask.
+- **Real-time Updates**: Uses event listeners to update the UI in real-time.
+- **Campaign Display**: Shows live and fulfilled campaigns in separate tables.
+- **User-specific Actions**: Displays different options based on user roles (e.g., cancel campaign for entrepreneurs).
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Key Learnings
 
-### `npm run eject`
+1. **Blockchain Interaction**: Learned how to interact with Ethereum blockchain using Web3.js.
+2. **Smart Contract Development**: Gained experience in writing and deploying Solidity smart contracts.
+3. **React State Management**: Implemented complex state management in React for blockchain data.
+4. **Event Handling**: Used blockchain events to trigger UI updates.
+5. **MetaMask Integration**: Learned how to integrate MetaMask for user authentication and transactions.
+6. **Error Handling**: Implemented robust error handling for blockchain interactions.
+7. **Asynchronous Operations**: Managed asynchronous operations in both smart contract calls and UI updates.
+8. **Gas Optimization**: Considered gas costs when designing smart contract functions.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Challenges Faced and Solutions
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. **MetaMask Connectivity**: Implemented checks and prompts to ensure users are connected to MetaMask.
+2. **Transaction Management**: Created a system to handle pending transactions and update UI accordingly.
+3. **Data Consistency**: Used event listeners to keep the frontend in sync with the blockchain state.
+4. **User Experience**: Designed intuitive interfaces for complex blockchain interactions.
